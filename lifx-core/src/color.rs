@@ -102,6 +102,26 @@ pub struct HSBK {
 	pub kelvin: u16,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Kelvin  {
+	Candlelight    = 1500,
+	Sunset         = 2000,
+	UltraWarm      = 2500,
+	Incandescent   = 2700,
+	Warm           = 3000,
+	Neutral        = 3500,
+	Cool           = 4000,
+	CoolDaylight   = 4500,
+	SoftDaylight   = 5000,
+	Daylight       = 5600,
+	NoonDaylight   = 6000,
+	BrightDaylight = 6500,
+	CloudyDaylight = 7000,
+	BlueDaylight   = 7500,
+	BlueOvercast   = 8000,
+	BlueIce        = 9000,
+}
+
 impl HSBK {
 	pub fn describe(&self, short: bool) -> String {
 		match short {
@@ -112,16 +132,34 @@ impl HSBK {
 				self.saturation as f32 / 655.35
 			),
 			false if self.saturation == 0 => format!(
-				"{:.0}% White ({})",
+				"{:<3.0}% White ({})",
 				self.brightness as f32 / 655.35,
 				describe_kelvin(self.kelvin)
 			),
 			false => format!(
-				"{}% hue: {} sat: {}",
+				"{:<3.0}% hue: {:<3.0} sat: {:<3.0}%",
 				self.brightness as f32 / 655.35,
-				self.hue,
-				self.saturation
+				(self.hue as f32 / 65535.0) * 360.0,
+				self.saturation as f32 / 655.35
 			),
+		}
+	}
+
+	pub fn white(kelvin: u16, brightness: f32) -> HSBK {
+		HSBK {
+			hue: 0,
+			saturation: 0,
+			kelvin,
+			brightness: (brightness * u16::MAX as f32) as u16,
+		}
+	}
+
+	pub fn color(hue: u16, saturation: f32, brightness: f32) -> HSBK {
+		HSBK {
+			hue: ((hue as f32 / 360.0) * (u16::MAX as f32)) as u16,
+			saturation: (saturation * u16::MAX as f32) as u16,
+			brightness: (brightness * u16::MAX as f32) as u16,
+			kelvin: 0,
 		}
 	}
 }
@@ -130,38 +168,23 @@ impl HSBK {
 ///
 /// These descriptions match the values shown in the LIFX mobile app.
 pub fn describe_kelvin(k: u16) -> &'static str {
-	if k <= 2500 {
-		"Ultra Warm"
-	} else if k > 2500 && k <= 2700 {
-		"Incandescent"
-	} else if k > 2700 && k <= 3000 {
-		"Warm"
-	} else if k > 300 && k <= 3200 {
-		"Neutral Warm"
-	} else if k > 3200 && k <= 3500 {
-		"Neutral"
-	} else if k > 3500 && k <= 4000 {
-		"Cool"
-	} else if k > 400 && k <= 4500 {
-		"Cool Daylight"
-	} else if k > 4500 && k <= 5000 {
-		"Soft Daylight"
-	} else if k > 5000 && k <= 5500 {
-		"Daylight"
-	} else if k > 5500 && k <= 6000 {
-		"Noon Daylight"
-	} else if k > 6000 && k <= 6500 {
-		"Bright Daylight"
-	} else if k > 6500 && k <= 7000 {
-		"Cloudy Daylight"
-	} else if k > 7000 && k <= 7500 {
-		"Blue Daylight"
-	} else if k > 7500 && k <= 8000 {
-		"Blue Overcast"
-	} else if k > 8000 && k <= 8500 {
-		"Blue Water"
-	} else {
-		"Blue Ice"
+	match k {
+		   0..2000 => "Candlelight",
+		2000..2500 => "Sunset",
+		2500..2700 => "Ulra Warm",
+		2700..3000 => "Incandescent",
+		3000..3500 => "Warm",
+		3500..4000 => "Neutral",
+		4000..4500 => "Cool",
+		4500..5000 => "Cool Daylight",
+		5000..5600 => "Soft Daylight",
+		5600..6000 => "Daylight",
+		6000..6500 => "Noon Daylight",
+		6500..7000 => "Bright Daylight",
+		7000..7500 => "Cloudy Daylight",
+		7500..8000 => "Blue Daylight",
+		8000..9000 => "Blue Overcast",
+		9000..=u16::MAX => "Blue Ice",
 	}
 }
 

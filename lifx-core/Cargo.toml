@@ -11,3 +11,5 @@ edition = "2018"
 [dependencies]
 byteorder = "1.2.4"
 thiserror = "1.0"
+anyhow = "1.0"
+get_if_addrs = "0.5.3"

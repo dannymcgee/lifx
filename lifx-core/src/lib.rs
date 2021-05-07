@@ -24,6 +24,7 @@
 //! suspected to be internal messages that are used by offical LIFX apps, but that aren't documented.
 
 #![allow(clippy::bool_assert_comparison)]
+#![feature(exclusive_range_pattern)]
 
 mod error;
 mod string;
@@ -33,13 +34,14 @@ mod protocol;
 mod color;
 mod misc;
 mod product;
+pub mod udp;
 
 pub use error::Error;
 pub use string::LifxString;
 pub use read_write::{LittleEndianReader, LittleEndianWriter};
 pub use msg::{BuildOptions, Message, RawMessage};
 pub use protocol::{Frame, FrameAddress, ProtocolHeader};
-pub use color::{ApplicationRequest, Waveform, HSBK};
+pub use color::{ApplicationRequest, Waveform, HSBK, Kelvin};
 pub use misc::{EchoPayload, LifxIdent, PowerLevel, Service};
 pub use product::{get_product_info, ProductInfo};
 
