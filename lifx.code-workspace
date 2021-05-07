@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "utils\\scripts"
+		}
+	],
+	"settings": {
+		"typescript.tsdk": "scripts\\node_modules\\typescript\\lib"
+	}
+}
